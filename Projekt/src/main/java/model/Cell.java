@@ -3,44 +3,102 @@ package model;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.field.grid.Grid2D;
+import sim.util.Double2D;
 import sim.util.Int2D;
 
+import java.util.EnumMap;
+
 public class Cell implements Steppable {
-    enum StepType {Calculate, Update}
+    enum StepType {Collide, Flow}
 
     private final Int2D position;
-    private boolean alive;
-    private boolean aliveNext;
-    private StepType step = StepType.Calculate;
+    private StepType step = StepType.Collide;
 
-    public Cell(Int2D position, boolean alive) {
+    public EnumMap<Direction, Double> directionalDensity = new EnumMap<>(Direction.class);
+    public EnumMap<Direction, Double> newDirectionalDensity = new EnumMap<>(Direction.class);
+
+    boolean isWall;
+
+    Double fixedDensity;
+    Double2D fixedU;
+
+    double density = 0;
+    Double2D u = new Double2D(0, 0);
+
+    public Cell(Int2D position, boolean isWall, Double fixedDensity, Double2D fixedU) {
         this.position = position;
-        this.alive = alive;
+        this.isWall =  isWall;
+        this.fixedDensity = fixedDensity;
+        this.fixedU = fixedU;
+        for (var direction : Direction.values()) {
+            directionalDensity.put(direction,  1.0);
+            newDirectionalDensity.put(direction, 0.0);
+        }
     }
 
     @Override
     public void step(SimState state) {
-        if (step == StepType.Calculate) {
-            var gof = (FluidSim) state;
-            var neighbors = gof.grid.getMooreNeighbors(position.x, position.y, 1, Grid2D.TOROIDAL, false);
-            var count = neighbors.stream().filter(o -> ((Cell) o).alive).count();
+        if(isWall) return;
 
-            if (alive && (count < 2 || count > 3)) {
-                aliveNext = false;
-            } else if (!alive && count == 3) {
-                aliveNext = true;
-            } else {
-                aliveNext = alive;
+        if (step == StepType.Collide) {
+            if(fixedDensity != null && fixedU != null) {
+                density = fixedDensity;
+                u = fixedU;
+            }
+            else {
+                density = 0;
+
+                u = new Double2D(0, 0);
+                for (var entry : directionalDensity.entrySet()) {
+                    u = u.add(entry.getKey().getVector().multiply(entry.getValue()));
+                    density += entry.getValue();
+                }
+
+                u = u.multiply(1.0 / density);
             }
 
-            step = StepType.Update;
+            for (var direction : Direction.values()) {
+                var eu = direction.getVector().dot(u);
+                var eqValue = density * direction.getWeight() *
+                        (1 + 3 * eu + 9.0 / 2.0 * eu * eu - 3.0 / 2.0 * u.lengthSq());
+
+                var oldValue = directionalDensity.get(direction);
+                final double omega = 1.0;
+                newDirectionalDensity.put(direction, oldValue + omega * (eqValue - oldValue));
+            }
+
+            step = StepType.Flow;
         } else {
-            alive = aliveNext;
-            step = StepType.Calculate;
+            var gof = (FluidSim) state;
+            var neighbors = gof.grid.getMooreNeighbors(position.x, position.y, 1, Grid2D.BOUNDED, true);
+
+            for (var neigh : neighbors) {
+                var c = ((Cell) neigh);
+                var vector = c.position.subtract(position);
+                var direction = Direction.fromVector(new Double2D(vector.x, vector.y));
+                if (c.isWall){
+                    directionalDensity.put(direction.opposite(), newDirectionalDensity.get(direction));
+                }else {
+                    c.directionalDensity.put(direction, newDirectionalDensity.get(direction));
+                }
+            }
+
+            step = StepType.Collide;
         }
     }
 
-    public boolean isAlive() {
-        return alive;
+    public double getDensity() {
+        return density;
+    }
+
+    public Double2D getVelocity() {
+        return u;
+    }
+
+    public boolean isWall() {
+        return isWall;
+    }
+    public void setWall(boolean wall) {
+        isWall = wall;
     }
 }

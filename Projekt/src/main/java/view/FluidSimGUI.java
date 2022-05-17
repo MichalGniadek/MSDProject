@@ -35,7 +35,7 @@ public class FluidSimGUI extends GUIState {
     void setup() {
         var gof = (FluidSim) state;
         gridPortrayal2D.setField(gof.grid);
-        gridPortrayal2D.setPortrayalForClass(Cell.class, new CellPortrayal());
+        gridPortrayal2D.setPortrayalForClass(Cell.class, new CellPortrayal(gof));
 
         display.reset();
         display.setBackdrop(Color.BLACK);
@@ -48,7 +48,7 @@ public class FluidSimGUI extends GUIState {
         display = new Display2D(600, 600, this);
         display.setClipping(false);
         JFrame displayFrame = display.createFrame();
-        displayFrame.setTitle("Fluid Sim");
+        displayFrame.setTitle("Game of Life");
         controller.registerFrame(displayFrame);
         displayFrame.setVisible(true);
         display.attach(gridPortrayal2D, "Grid");
