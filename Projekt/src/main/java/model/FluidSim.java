@@ -4,6 +4,7 @@ import sim.engine.SimState;
 import sim.field.grid.ObjectGrid2D;
 import sim.util.Double2D;
 import sim.util.Int2D;
+import sim.util.Interval;
 
 public class FluidSim extends SimState {
     public ObjectGrid2D grid = new ObjectGrid2D(100, 100);
@@ -14,17 +15,12 @@ public class FluidSim extends SimState {
         this.showDensity = showDensity;
     }
 
-    public float densityScale = 0.5f;
+    public float densityScale = 0.1f;
     public float getDensityScale() { return densityScale; }
     public void setDensityScale(float densityScale) {
         this.densityScale = densityScale;
     }
-
-    public float velocityScale = 10.0f;
-    public float getVelocityScale() { return velocityScale; }
-    public void setVelocityScale(float velocityScale) {
-        this.velocityScale = velocityScale;
-    }
+    public Interval domDensityScale() {return new Interval(0.05f, 0.5f); }
 
     public float gravity = 0.0f;
     public float getGravity() {return gravity;}
@@ -48,9 +44,9 @@ public class FluidSim extends SimState {
                 Double fixedDensity = null;
                 Double2D fixedU = null;
 
-                if(x == 0){
+                if(x == 0 && y != 0 && y != grid.height - 1){
                     fixedDensity = 1.0;
-                    fixedU = new Double2D(1,0);
+                    fixedU = new Double2D(-1,0);
                 }
 
                 var cell = new Cell(position, isWall, fixedDensity, fixedU);

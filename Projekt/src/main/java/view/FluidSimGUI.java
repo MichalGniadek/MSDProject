@@ -21,6 +21,18 @@ public class FluidSimGUI extends GUIState {
     }
 
     @Override
+    public void init(Controller controller) {
+        super.init(controller);
+        display = new Display2D(600, 600, this);
+        display.setClipping(false);
+        JFrame displayFrame = display.createFrame();
+        displayFrame.setTitle("Fluid sim");
+        controller.registerFrame(displayFrame);
+        displayFrame.setVisible(true);
+        display.attach(gridPortrayal2D, "Grid");
+    }
+
+    @Override
     public void start() {
         super.start();
         setup();
@@ -40,18 +52,6 @@ public class FluidSimGUI extends GUIState {
         display.reset();
         display.setBackdrop(Color.BLACK);
         display.repaint();
-    }
-
-    @Override
-    public void init(Controller controller) {
-        super.init(controller);
-        display = new Display2D(600, 600, this);
-        display.setClipping(false);
-        JFrame displayFrame = display.createFrame();
-        displayFrame.setTitle("Game of Life");
-        controller.registerFrame(displayFrame);
-        displayFrame.setVisible(true);
-        display.attach(gridPortrayal2D, "Grid");
     }
 
     @Override
