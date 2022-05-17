@@ -26,6 +26,10 @@ public class FluidSim extends SimState {
         this.velocityScale = velocityScale;
     }
 
+    public float gravity = 0.0f;
+    public float getGravity() {return gravity;}
+    public void setGravity(float gravity) {this.gravity = gravity;}
+
     public FluidSim(long seed) {
         super(seed);
     }

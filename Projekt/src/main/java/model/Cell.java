@@ -40,6 +40,8 @@ public class Cell implements Steppable {
     public void step(SimState state) {
         if(isWall) return;
 
+        var sim = (FluidSim) state;
+
         if (step == StepType.Collide) {
             if(fixedDensity != null && fixedU != null) {
                 density = fixedDensity;
@@ -54,7 +56,7 @@ public class Cell implements Steppable {
                     density += entry.getValue();
                 }
 
-                u = u.multiply(1.0 / density);
+                u = u.add(new Double2D(0, sim.gravity)).multiply(1.0 / density);
             }
 
             for (var direction : Direction.values()) {
@@ -69,8 +71,7 @@ public class Cell implements Steppable {
 
             step = StepType.Flow;
         } else {
-            var gof = (FluidSim) state;
-            var neighbors = gof.grid.getMooreNeighbors(position.x, position.y, 1, Grid2D.BOUNDED, true);
+            var neighbors = sim.grid.getMooreNeighbors(position.x, position.y, 1, Grid2D.BOUNDED, true);
 
             for (var neigh : neighbors) {
                 var c = ((Cell) neigh);
