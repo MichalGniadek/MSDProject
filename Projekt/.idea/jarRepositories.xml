@@ -14,6 +14,11 @@
     <remote-repository>
       <option name="id" value="repository" />
       <option name="name" value="repository" />
+      <option name="url" value="file:////home/tobiasz/Desktop/semestr 4/MSD/project/MSDProject/mason/mason/repository" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="repository" />
+      <option name="name" value="repository" />
       <option name="url" value="file:///C:\Users\mgnia\IdeaProjects\MSD\Projekt\mason\mason/repository" />
     </remote-repository>
     <remote-repository>

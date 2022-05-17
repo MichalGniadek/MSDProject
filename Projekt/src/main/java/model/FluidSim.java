@@ -36,7 +36,7 @@ public class FluidSim extends SimState {
     public float getGravity() {return gravity;}
     public void setGravity(float gravity) {this.gravity = gravity;}
 
-    public String loadFile;
+    public String loadFile = "test.store";
 
     public String getLoadFile(){return loadFile;}
     public void setLoadFile(String loadFile){this.loadFile = loadFile; load();}
@@ -53,26 +53,26 @@ public class FluidSim extends SimState {
     public void start() {
         super.start();
         grid.clear();
-
-        for (int x = 0; x < grid.width; x++) {
-            for (int y = 0; y < grid.height; y++) {
-                var position = new Int2D(x, y);
-                var isWall = y == 0 || y == grid.height - 1 || x == grid.width - 1;
-                isWall |= 45 < x && x < 55 && 45 < y && y < 55;
-
-                Double fixedDensity = null;
-                Double2D fixedU = null;
-
-                if(x == 0){
-                    fixedDensity = 1.0;
-                    fixedU = new Double2D(1,0);
-                }
-
-                var cell = new Cell(position, isWall, fixedDensity, fixedU);
-                schedule.scheduleRepeating(cell);
-                grid.set(x, y, cell);
-            }
-        }
+        load();
+//        for (int x = 0; x < grid.width; x++) {
+//            for (int y = 0; y < grid.height; y++) {
+//                var position = new Int2D(x, y);
+//                var isWall = y == 0 || y == grid.height - 1 || x == grid.width - 1;
+//                isWall |= 45 < x && x < 55 && 45 < y && y < 55;
+//
+//                Double fixedDensity = null;
+//                Double2D fixedU = null;
+//
+//                if(x == 0){
+//                    fixedDensity = 1.0;
+//                    fixedU = new Double2D(1,0);
+//                }
+//
+//                var cell = new Cell(position, isWall, fixedDensity, fixedU);
+//                schedule.scheduleRepeating(cell);
+//                grid.set(x, y, cell);
+//            }
+//        }
     }
     public void load()
     {
