@@ -3,12 +3,15 @@ package model;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.field.grid.Grid2D;
+import sim.portrayal.Oriented2D;
+import sim.portrayal.Scaled2D;
 import sim.util.Double2D;
 import sim.util.Int2D;
-
 import java.util.EnumMap;
 
-public class Cell implements Steppable {
+import static java.lang.Math.atan2;
+
+public class Cell implements Steppable, Oriented2D, Scaled2D {
     enum StepType {Collide, Flow}
 
     private final Int2D position;
@@ -91,15 +94,23 @@ public class Cell implements Steppable {
     public double getDensity() {
         return density;
     }
-
     public Double2D getVelocity() {
         return u;
     }
-
     public boolean isWall() {
         return isWall;
     }
     public void setWall(boolean wall) {
         isWall = wall;
+    }
+
+    @Override
+    public double orientation2D() {
+        return atan2(-u.y, -u.x);
+    }
+
+    @Override
+    public double getScale2D() {
+        return isWall ? 0 : u.length();
     }
 }
