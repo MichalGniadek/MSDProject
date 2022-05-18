@@ -41,6 +41,7 @@ public class FluidSim extends SimState {
     public String getStoreFile(){return storeFile;}
     public void setStoreFile(String storeFile){this.storeFile = storeFile; store();}
 
+
     public FluidSim(long seed) {
         super(seed);
     }
