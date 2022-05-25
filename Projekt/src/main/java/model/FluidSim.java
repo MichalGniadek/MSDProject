@@ -1,5 +1,6 @@
 package model;
 
+import sim.engine.ParallelSequence;
 import sim.engine.SimState;
 import sim.field.grid.ObjectGrid2D;
 import sim.util.Double2D;
@@ -14,6 +15,7 @@ import java.util.Scanner;
 
 public class FluidSim extends SimState {
     public ObjectGrid2D grid = new ObjectGrid2D(100, 100);
+    private ParallelSequence parallelSequence;
 
     public boolean showDensity = true;
     public boolean isShowDensity() { return showDensity; }
@@ -41,7 +43,6 @@ public class FluidSim extends SimState {
     public String getStoreFile(){return storeFile;}
     public void setStoreFile(String storeFile){this.storeFile = storeFile; store();}
 
-
     public FluidSim(long seed) {
         super(seed);
     }
@@ -51,28 +52,18 @@ public class FluidSim extends SimState {
         super.start();
         grid.clear();
         load();
-//        for (int x = 0; x < grid.width; x++) {
-//            for (int y = 0; y < grid.height; y++) {
-//                var position = new Int2D(x, y);
-//                var isWall = y == 0 || y == grid.height - 1 || x == grid.width - 1;
-//                isWall |= 45 < x && x < 55 && 45 < y && y < 55;
-//
-//                Double fixedDensity = null;
-//                Double2D fixedU = null;
-//
-//                if(x == 0){
-//                    fixedDensity = 1.0;
-//                    fixedU = new Double2D(1,0);
-//                }
-//
-//                var cell = new Cell(position, isWall, fixedDensity, fixedU);
-//                schedule.scheduleRepeating(cell);
-//                grid.set(x, y, cell);
-//            }
-//        }
     }
+
+    @Override
+    public void finish() {
+        super.finish();
+        if(parallelSequence != null) parallelSequence.cleanup();
+    }
+
     public void load()
     {
+        if(parallelSequence != null) parallelSequence.cleanup();
+
         try(FileReader fileReader = new FileReader(loadFile)) {
             Scanner scanner = new Scanner(fileReader).useLocale(Locale.US);
             grid.reshape(scanner.nextInt(), scanner.nextInt()); // maybe something else
@@ -91,10 +82,12 @@ public class FluidSim extends SimState {
                     if(((Double)fixedU.x).isNaN() || ((Double)fixedU.y).isNaN())
                         fixedU = null;
                     Cell c = new Cell(new Int2D(x, y), isWall[x][y], fixedDensity, fixedU);
-                    schedule.scheduleRepeating(c);
                     grid.set(x, y, c);
                 }
             }
+
+            parallelSequence = new ParallelSequence(grid.elements(), ParallelSequence.CPUS);
+            schedule.scheduleRepeating(parallelSequence);
         }
         catch(IOException e)
         {
