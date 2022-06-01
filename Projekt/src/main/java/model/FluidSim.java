@@ -30,6 +30,13 @@ public class FluidSim extends SimState {
     }
     public Interval domDensityScale() {return new Interval(0.05f, 0.5f); }
 
+    public float velocityScale = 1f;
+    public float getVelocityScale() { return velocityScale; }
+    public void setVelocityScale(float velocityScale) {
+        this.velocityScale = velocityScale;
+    }
+    public Interval domVelocityScale() {return new Interval(0.1f, 5f); }
+
     public float gravity = 0.0f;
     public float getGravity() {return gravity;}
     public void setGravity(float gravity) {this.gravity = gravity;}

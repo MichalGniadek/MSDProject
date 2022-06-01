@@ -28,6 +28,8 @@ public class Cell implements Steppable, Oriented2D, Scaled2D {
     double density = 0;
     Double2D u = new Double2D(0, 0);
 
+    private float velocityScale = 1f;
+
     public Cell(Int2D position, boolean isWall, Double fixedDensity, Double2D fixedU) {
         this.position = position;
         this.isWall =  isWall;
@@ -42,8 +44,9 @@ public class Cell implements Steppable, Oriented2D, Scaled2D {
     @Override
     public void step(SimState state) {
         if(isWall) return;
-
         var sim = (FluidSim) state;
+
+        velocityScale = sim.velocityScale;
 
         if (step == StepType.Collide) {
             if(fixedDensity != null && fixedU != null) {
@@ -111,6 +114,6 @@ public class Cell implements Steppable, Oriented2D, Scaled2D {
 
     @Override
     public double getScale2D() {
-        return isWall ? 0 : u.length();
+        return isWall ? 0 : Math.sqrt(u.length()) * 10 * velocityScale;
     }
 }
